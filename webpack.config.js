@@ -1,28 +1,23 @@
-var path = require('path');
+var path = require("path");
 
 module.exports = {
-    mode: 'production',
-    devtool: 'source-map',
-    // mode: 'development',
-    entry: './Main.ts',
-    // baseUrl: '',
-    resolve: {
-        extensions: [".d.ts", ".ts", ".js"]
-    },
-    optimization: {
-        minimize: false, // uglify
-    },
-    output: {
-        path: path.join(__dirname, 'dist'),
-        filename: 'final.js'
-    },
-    module: {
-        rules: [
-            {
-                test: /\.ts(x?)$/,
-                // include: path.resolve(__dirname, './'),
-                loader: 'ts-loader'
-            }
-        ]
-    }
-}
+  mode: "development",
+  //   process.env.NODE_ENV ? "development" : "production",
+  entry: "./src/main.ts",
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,
+        use: "ts-loader",
+        exclude: /node_modules/,
+      },
+    ],
+  },
+  resolve: {
+    extensions: [".tsx", ".ts", ".js"],
+  },
+  output: {
+    path: path.join(__dirname, "dist"),
+    filename: "main.js",
+  },
+};
