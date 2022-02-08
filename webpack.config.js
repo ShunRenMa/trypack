@@ -20,7 +20,7 @@ module.exports = {
         rules: [
             {
                 test: /\.ts(x?)$/,
-                include: path.resolve(__dirname, './'),
+                // include: path.resolve(__dirname, './'),
                 loader: 'ts-loader'
             }
         ]

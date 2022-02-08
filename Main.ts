@@ -13,3 +13,6 @@ module TryPack {
     }
 
 }
+
+var main = new TryPack.Main()
+main.start();
