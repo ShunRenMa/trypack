@@ -14,6 +14,8 @@ var TryPack;
     }());
     TryPack.Main = Main;
 })(TryPack || (TryPack = {}));
+var main = new TryPack.Main();
+main.start();
 
 /******/ })()
 ;
