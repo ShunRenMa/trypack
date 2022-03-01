@@ -1,7 +1,7 @@
 var path = require('path');
 
 module.exports = {
-    mode: 'production',
+    mode: 'development',
     devtool: 'source-map',
     // mode: 'development',
     entry: './Main.ts',

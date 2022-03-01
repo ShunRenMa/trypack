@@ -1,18 +1,25 @@
-/// <reference path="./lib/typePack.ts" />
 
-module TryPack {
+// import { TypePack } from "./lib/TypePack";
+// import { TypeBack } from "./lib/TypeBack";
 
-    export class Main {
+export class Main {
 
-        public start() {
+    public static start() {
+        console.log("this is start");
+        let moduleSpecifier
+        if (window['a']) {
+            moduleSpecifier = './lib/TypePack';
 
-            console.log("this is start");
+        } else {
+            moduleSpecifier = './lib/TypeBack';
 
-            new typePack();
         }
+        import(moduleSpecifier).then(M => {
+            debugger
+        })
     }
 
 }
 
-var main = new TryPack.Main()
-main.start();
+
+Main.start();
