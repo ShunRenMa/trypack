@@ -1,10 +1,9 @@
 {
-    "compilerOptions": {
-        "lib": [
-            "es2015",
-            "dom"
-        ],
-        "target": "es5",
-        "noUnusedLocals": true,
-    }
+  "compilerOptions": {
+    "outDir": "./dist/",
+    "module": "esnext",
+    "target": "es5",
+    "lib": ["es2015", "dom"],
+    "noUnusedLocals": true
+  }
 }
