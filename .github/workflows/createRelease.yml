@@ -10,8 +10,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: "production"
+          ref: "main"
           fetch-depth: 0
+
+      - name: echo
+        run: echo "$CHANGELOG"
 
       - name: Generate and push release tag
         run: |
