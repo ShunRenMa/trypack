@@ -1,9 +1,8 @@
 name: Generate Release Tag
 on:
-  workflow_run:
-    workflows: [deployment]
-    types:
-      - completed
+  push:
+    branches:
+      - main
 jobs:
   generate-changelog:
     runs-on: ubuntu-latest
