@@ -1,0 +1,1 @@
+{"version":3,"file":"TypePack.js","mappings":";;;;;;;;;;;;;AAAA;AACA;AACA;AACA;AACA;AACA,CAAC;AACmB","sources":["webpack://try/./lib/TypePack.ts"],"sourcesContent":["var TypePack = /** @class */ (function () {\n    function TypePack() {\n        console.log(\"this is type Pack ~~\");\n    }\n    return TypePack;\n}());\nexport { TypePack };\n"],"names":[],"sourceRoot":""}

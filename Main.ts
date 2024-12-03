@@ -6,17 +6,17 @@ export class Main {
 
     public static start() {
         console.log("this is start");
-        let moduleSpecifier
-        if (window['a']) {
-            moduleSpecifier = './lib/TypePack';
+        // let moduleSpecifier
+        if (window["a"]) {
+            import(/* webpackChunkName: "TypePack" */ "./lib/TypePack").then(e => {
+                new e.TypePack();
+            });
 
         } else {
-            moduleSpecifier = './lib/TypeBack';
-
+            import(/* webpackChunkName: "TypeBack" */ "./lib/TypeBack").then(e => {
+                new e.TypeBack();
+            });;
         }
-        import(moduleSpecifier).then(M => {
-            debugger
-        })
     }
 
 }

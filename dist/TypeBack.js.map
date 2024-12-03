@@ -1,0 +1,1 @@
+{"version":3,"file":"TypeBack.js","mappings":";;;;;;;;;;;;;AAAA;AACA;AACA;AACA;AACA;AACA,CAAC;AACmB","sources":["webpack://try/./lib/TypeBack.ts"],"sourcesContent":["var TypeBack = /** @class */ (function () {\n    function TypeBack() {\n        console.log(\"this is type Back ~~\");\n    }\n    return TypeBack;\n}());\nexport { TypeBack };\n"],"names":[],"sourceRoot":""}
