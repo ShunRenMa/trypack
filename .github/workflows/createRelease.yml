@@ -17,26 +17,46 @@ jobs:
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git config --global user.name "${{ github.actor }}"
 
-      - name: Generate and push release tag
+      - name: Generate Tag and Release Notes
+        id: generate
         run: |
-          # Generate new tag
+          # Get today's date
           TODAY=$(date +"%Y%m%d")
+
+          # Get the last tag
           LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "${TODAY}-0")
+
+          # Generate the new tag name
           TAG_NAME=$(echo $LAST_TAG | awk -F'-' -v today=$TODAY '{if ($1 == today) {printf "%s-%d", $1, $2 + 1} else {printf "%s-0", today}}')
 
-          # Create new tag
+          # Generate the changelog from commits
+          if [ "$LAST_TAG" = "${TODAY}-0" ]; then
+            CHANGES=$(git log --format="* %s by %an" | sed 's/@/ @/')
+          else
+            CHANGES=$(git log ${LAST_TAG}..HEAD --format="* %s by %an" | sed 's/@/ @/')
+          fi
+
+          # Output the variables for use in later steps
+          echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
+          echo "CHANGES=$CHANGES" >> $GITHUB_ENV
+
+      - name: Create New Tag
+        run: |
           git tag -a $TAG_NAME -m "Release $TAG_NAME"
           git push origin $TAG_NAME
 
-          # Create release via GitHub API
+      - name: Create Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
           curl -X POST \
-              -H "Authorization: Bearer $GITHUB_TOKEN" \
-              -H "Content-Type: application/json" \
-              -d '{
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{
               "tag_name": "'$TAG_NAME'",
               "target_commitish": "main",
               "name": "Release '$TAG_NAME'",
-              "body": "Automatically generated release for '$TAG_NAME'",
+              "body": "## What's Changed\n\n'"$CHANGES"'",
               "draft": false,
               "prerelease": false
             }' \
