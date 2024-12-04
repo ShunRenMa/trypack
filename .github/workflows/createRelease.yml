@@ -49,15 +49,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "$RELEASE_BODY"
+          # echo "$RELEASE_BODY"
           curl -X POST \
             -H "Authorization: Bearer $GITHUB_TOKEN" \
             -H "Content-Type: application/json" \
             -d '{
-              "tag_name": "'$TAG_NAME'",
+              "tag_name": "'"$TAG_NAME"'",
               "target_commitish": "main",
-              "name": "Release '$TAG_NAME'",
-              "body": "## What's Changed\n\n$CHANGES",
+              "name": "Release '"$TAG_NAME"'",
+              "body": "## What's Changed\n\n'"$CHANGES"'",
               "draft": false,
               "prerelease": false
             }' \
