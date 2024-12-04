@@ -57,7 +57,7 @@ jobs:
               "tag_name": "'$TAG_NAME'",
               "target_commitish": "main",
               "name": "Release '$TAG_NAME'",
-              "body": "## What's Changed\n\n'"$CHANGES"'",
+              "body": "## What's Changed\n\n$CHANGES",
               "draft": false,
               "prerelease": false
             }' \
