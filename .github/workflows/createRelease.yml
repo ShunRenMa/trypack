@@ -12,11 +12,6 @@ jobs:
         with:
           ref: "main"
           fetch-depth: 0
-
-      - name: echo
-        run: echo "$COMMITS_INFO" | while IFS= read -r line; do
-          echo "* $line"
-
       - name: Generate and push release tag
         run: |
           # Generate new tag
