@@ -14,40 +14,33 @@ jobs:
           fetch-depth: 0
 
       - name: echo
-        run: echo "$CHANGELOG"
+        run: echo "$COMMITS_INFO" | while IFS= read -r line; do
+          echo "* $line"
 
       - name: Generate and push release tag
         run: |
-          # 獲取當前日期
-          TODAY=$(date +%Y%m%d)
-          echo "Today's date: $TODAY"
+          # Generate new tag
+          TODAY=$(date +"%Y%m%d")
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "${TODAY}-0")
+          TAG_NAME=$(echo $LAST_TAG | awk -F'-' -v today=$TODAY '{if ($1 == today) {printf "%s-%d", $1, $2 + 1} else {printf "%s-0", today}}')
 
-          # 獲取最後一次 release tag
-          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-          echo "Last tag: $LAST_TAG"
+          # Create new tag
+          git tag -a $TAG_NAME -m "Release $TAG_NAME"
+          git push origin $TAG_NAME
 
-          if [[ -z "$LAST_TAG" ]]; then
-            # 如果沒有標籤，創建今天的第一個標籤
-            NEW_TAG="${TODAY}-0"
-          else
-            # 提取最後標籤的日期部分和後綴部分
-            LAST_DATE=$(echo "$LAST_TAG" | cut -d'-' -f1)
-            LAST_SUFFIX=$(echo "$LAST_TAG" | cut -d'-' -f2)
-
-            if [[ "$LAST_DATE" == "$TODAY" ]]; then
-              # 如果日期相同，增加後綴
-              NEW_TAG="${TODAY}-$((LAST_SUFFIX + 1))"
-            else
-              # 如果日期不同，創建今天的第一個標籤
-              NEW_TAG="${TODAY}-0"
-            fi
-          fi
-
-          echo "New tag: $NEW_TAG"
-
-          # 創建並推送標籤
-          git tag "$NEW_TAG"
-          git push origin "$NEW_TAG"
+          # Create release via GitHub API
+          curl -X POST \
+              -H "Authorization: Bearer $GITHUB_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d '{
+              "tag_name": "'$TAG_NAME'",
+              "target_commitish": "main",
+              "name": "Release '$TAG_NAME'",
+              "body": "Automatically generated release for '$TAG_NAME'",
+              "draft": false,
+              "prerelease": false
+            }' \
+            https://api.github.com/repos/${{ github.repository }}/releases
 
       - name: Generate changelog
         run: |
