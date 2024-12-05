@@ -5,7 +5,7 @@ on:
       - main
       - production
 jobs:
-  generate-changelog:
+  generate-release-tag:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
