@@ -48,6 +48,8 @@ jobs:
           fi
 
           # Output the variables for use in later steps
+          echo "TAG_NAME=${TAG_NAME}"
+          echo "CHANGES=${CHANGES}"
 
       - name: Create New Tag
         run: |
