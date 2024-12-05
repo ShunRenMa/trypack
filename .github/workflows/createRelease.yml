@@ -23,8 +23,8 @@ jobs:
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git config --global user.name "${{ github.actor }}"
 
-      - name: Generate Tag and Release Notes
-        id: generate
+      - name: Get the last tag
+        id: last_tag
         run: |
           # Get today's date
           TODAY=$(date +"%Y%m%d")
@@ -34,6 +34,10 @@ jobs:
 
           # Generate the new tag name
           TAG_NAME=$(echo $LAST_TAG | awk -F'-' -v today=$TODAY '{if ($1 == today) {printf "%s-%d", $1, $2 + 1} else {printf "%s-0", today}}')
+
+      - name: Generate Tag and Release Notes
+        id: generate
+        run: |
 
           # Generate the changelog from commits
           if [ "$LAST_TAG" = "${TODAY}-0" ]; then
