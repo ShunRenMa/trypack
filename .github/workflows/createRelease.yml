@@ -28,7 +28,7 @@ jobs:
           echo "GITHUB_ENV path: $GITHUB_ENV"
           ls -al $(dirname $GITHUB_ENV)
 
-      - name: Generate Tag and Release Notes
+      - name: Generate Tag
         id: generate_tag
         run: |
           # Get today's date
