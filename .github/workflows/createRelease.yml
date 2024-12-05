@@ -65,31 +65,6 @@ jobs:
           gh release create $TAG_NAME -n "${{ env.CHANGES }}"
       - name: Generate changelog
         run: |
-          # 使用新標籤生成 changelog
-          BANNER_INFO=""
-
-          # 取得最後一次 release tag
-          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-          echo "LAST_TAG: $LAST_TAG"
-
-          if [ -z "$LAST_TAG" ]; then
-            COMMITS_INFO=$(git log --format="%s@%an" | sed 's/@/ @/' | sort -u)
-            CHANGED_FILES=$(git diff --name-only $(git rev-list --max-parents=0 HEAD) HEAD | grep "guoshipartners/static/js/.*\.js$" || true)
-          else
-            COMMITS_INFO=$(git log ${LAST_TAG}..HEAD --format="%s@%an" | sed 's/@/ @/' | sort -u)
-            CHANGED_FILES=$(git diff --name-only ${LAST_TAG} HEAD | grep "guoshipartners/static/js/.*\.js$" || true)
-          fi
-
-          echo -e "\n## Version"
-          echo "\`\`\`"
-          echo "$CHANGED_FILES" | while IFS= read -r file; do
-            if [ -f "$file" ]; then
-              banner=$(head -n 2 "$file" | tail -n 1 | xargs)
-              echo "$banner"
-            fi
-          done
-          echo "\`\`\`"
-
           echo "## What's Changed"
           echo "$COMMITS_INFO" | while IFS= read -r line; do
             echo "* $line"
