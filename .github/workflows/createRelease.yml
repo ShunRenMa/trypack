@@ -48,6 +48,8 @@ jobs:
           echo "${CHANGES}" >> "$GITHUB_ENV"
           echo "EOF" >> "$GITHUB_ENV"
 
+          echo "## What's Changed"
+          echo "${CHANGES}"
       - name: Create New Tag
         run: |
           git tag -a $TAG_NAME -m "Release $TAG_NAME"
@@ -60,7 +62,4 @@ jobs:
           gh release create $TAG_NAME -n "${{ env.CHANGES }}"
       - name: Generate changelog
         run: |
-          echo "## What's Changed"
-          echo "$COMMITS_INFO" | while IFS= read -r line; do
-            echo "* $line"
           done
