@@ -28,35 +28,40 @@ jobs:
           echo "GITHUB_ENV path: $GITHUB_ENV"
           ls -al $(dirname $GITHUB_ENV)
 
-      - name: Generate Tag and Release Notes
-        id: generate
+          - name: Generate Tag
+          id: generate_tag
+          run: |
+            # Get today's date
+            TODAY=$(date +"%Y%m%d")
+
+            # Get the last tag
+            LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "${TODAY}-0")
+
+            # Generate the new tag name
+            TAG_NAME=$(echo $LAST_TAG | awk -F'-' -v today=$TODAY '{if ($1 == today) {printf "%s-%d", $1, $2 + 1} else {printf "%s-0", today}}')
+
+            # Output the tag name to GITHUB_ENV for later steps
+            echo "TAG_NAME=${TAG_NAME}" >> "$GITHUB_ENV"
+
+      - name: Create New Tag
         run: |
-          # Get today's date
-          TODAY=$(date +"%Y%m%d")
+          git tag -a $TAG_NAME -m "Release $TAG_NAME"
+          git push origin $TAG_NAME
 
-          # Get the last tag
-          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "${TODAY}-0")
-
-          # Generate the new tag name
-          TAG_NAME=$(echo $LAST_TAG | awk -F'-' -v today=$TODAY '{if ($1 == today) {printf "%s-%d", $1, $2 + 1} else {printf "%s-0", today}}')
-
-          # Generate the changelog from commits
+      - name: Generate Release Notes
+        id: generate_release_notes
+        run: |
+          # Generate changelog from commits
           if [ "$LAST_TAG" = "${TODAY}-0" ]; then
             CHANGES=$(git log --format="* %s by %an" | sed 's/@/ @/')
           else
             CHANGES=$(git log ${LAST_TAG}..HEAD --format="* %s by %an" | sed 's/@/ @/')
           fi
 
-          # Output the variables for use in later steps
-          echo "TAG_NAME=${TAG_NAME}" >> "$GITHUB_ENV"
+          # Output changes to GITHUB_ENV for later steps
           echo "CHANGES<<EOF" >> "$GITHUB_ENV"
           echo "${CHANGES}" >> "$GITHUB_ENV"
           echo "EOF" >> "$GITHUB_ENV"
-
-      - name: Create New Tag
-        run: |
-          git tag -a $TAG_NAME -m "Release $TAG_NAME"
-          git push origin $TAG_NAME
 
       - name: Create Release
         env:
