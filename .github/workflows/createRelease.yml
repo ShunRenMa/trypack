@@ -23,14 +23,14 @@ jobs:
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git config --global user.name "${{ github.actor }}"
 
-      - name: Generate Tag
-        id: generate_tag
+      - name: Debug GITHUB_ENV
         run: |
-          echo "Generating tag..."
-      - name: Generate Release Notes
-        id: generate_release_notes
-        run: |
+          echo "GITHUB_ENV path: $GITHUB_ENV"
+          ls -al $(dirname $GITHUB_ENV)
 
+      - name: Generate Tag and Release Notes
+        id: generate
+        run: |
           # Get today's date
           TODAY=$(date +"%Y%m%d")
 
@@ -40,22 +40,18 @@ jobs:
           # Generate the new tag name
           TAG_NAME=$(echo $LAST_TAG | awk -F'-' -v today=$TODAY '{if ($1 == today) {printf "%s-%d", $1, $2 + 1} else {printf "%s-0", today}}')
 
-          # Output the tag name to GITHUB_ENV for later steps
-          echo "TAG_NAME=${TAG_NAME}" >> "$GITHUB_ENV"
-
-
-          # Generate changelog from commits
+          # Generate the changelog from commits
           if [ "$LAST_TAG" = "${TODAY}-0" ]; then
             CHANGES=$(git log --format="* %s by %an" | sed 's/@/ @/')
           else
             CHANGES=$(git log ${LAST_TAG}..HEAD --format="* %s by %an" | sed 's/@/ @/')
           fi
 
-          # Output changes to GITHUB_ENV for later steps
+          # Output the variables for use in later steps
+          echo "TAG_NAME=${TAG_NAME}" >> "$GITHUB_ENV"
           echo "CHANGES<<EOF" >> "$GITHUB_ENV"
           echo "${CHANGES}" >> "$GITHUB_ENV"
           echo "EOF" >> "$GITHUB_ENV"
-          echo "EOF = ${CHANGES}"
 
       - name: Create New Tag
         run: |
