@@ -60,7 +60,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          RELEASE_NOTES="Version \n  "\`\`\`"\n * ad-serv.min.js 2024-12-02 3:30:42 PM  \n"\`\`\`""
+          RELEASE_NOTES="## Version \n  "\`\`\`"\n * ad-serv.min.js 2024-12-02 3:30:42 PM  \n"\`\`\`""
           RELEASE_NOTES="$RELEASE_NOTES \n\n## What's Changed \n${{ env.CHANGES }}"
           RELEASE_NOTES=$(printf "%b" "$RELEASE_NOTES")
 
