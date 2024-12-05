@@ -12,6 +12,12 @@ jobs:
         with:
           ref: "main"
           fetch-depth: 0
+
+      - name: 安裝 GitHub CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gh
+
       - name: Configure Git user as workflow actor
         run: |
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
@@ -49,21 +55,32 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          curl -L \
-            -X POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer $GITHUB_TOKEN" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            https://api.github.com/repos/${{ github.repository }}/releases \
-            -d '{
-              "tag_name": "'"$TAG_NAME"'",
-              "target_commitish": "main",
-              "name": "'"$TAG_NAME"'",
-              "body": "## What's Changed\n\n'"$CHANGES"'",
-              "draft": false,
-              "prerelease": false,
-              "generate_release_notes": false
-            }'
+          # 從輸入中取得標籤名稱和說明
+          TAG_NAME="${{ github.event.inputs.tag_name }}"
+          RELEASE_NOTES="${{ github.event.inputs.release_notes }}"
+
+          # 確保標籤名稱不為空
+          if [ -z "$TAG_NAME" ]; then
+            echo "標籤名稱不能為空！"
+            exit 1
+          fi
+
+          # 建立標籤
+          git tag "$TAG_NAME"
+          git push origin "$TAG_NAME"
+
+          # 創建 Release
+          if [ -z "$RELEASE_NOTES" ]; then
+            gh release create "$TAG_NAME" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "${GITHUB_REPOSITORY#*/} $TAG_NAME" \
+              --generate-notes
+          else
+            gh release create "$TAG_NAME" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "${GITHUB_REPOSITORY#*/} $TAG_NAME" \
+              --notes "$RELEASE_NOTES"
+          fi
 
       - name: Generate changelog
         run: |
