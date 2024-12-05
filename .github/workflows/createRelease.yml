@@ -60,5 +60,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           RELEASE_NOTES="## What's Changed \n${{ env.CHANGES }}"
-          echo -e "$RELEASE_NOTES"
+          RELEASE_NOTES=$(printf "%b" "$RELEASE_NOTES")
           gh release create $TAG_NAME -n "$RELEASE_NOTES"
