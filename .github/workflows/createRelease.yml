@@ -28,8 +28,8 @@ jobs:
           echo "GITHUB_ENV path: $GITHUB_ENV"
           ls -al $(dirname $GITHUB_ENV)
 
-      - name: Generate Tag
-        id: generate_tag
+      - name: Generate Tag and Release Notes
+        id: generate
         run: |
           # Get today's date
           TODAY=$(date +"%Y%m%d")
@@ -40,11 +40,6 @@ jobs:
           # Generate the new tag name
           TAG_NAME=$(echo $LAST_TAG | awk -F'-' -v today=$TODAY '{if ($1 == today) {printf "%s-%d", $1, $2 + 1} else {printf "%s-0", today}}')
 
-          echo "TAG_NAME=${TAG_NAME}" >> "$GITHUB_ENV"
-
-      - name: Generate Release Notes
-        id: generate_release_notes
-        run: |
           # Generate the changelog from commits
           if [ "$LAST_TAG" = "${TODAY}-0" ]; then
             CHANGES=$(git log --format="* %s by %an" | sed 's/@/ @/')
@@ -53,7 +48,7 @@ jobs:
           fi
 
           # Output the variables for use in later steps
-          echo "tagname = $TAG_NAME"
+          echo "TAG_NAME=${TAG_NAME}" >> "$GITHUB_ENV"
           echo "CHANGES<<EOF" >> "$GITHUB_ENV"
           echo "${CHANGES}" >> "$GITHUB_ENV"
           echo "EOF" >> "$GITHUB_ENV"
