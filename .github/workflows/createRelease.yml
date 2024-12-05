@@ -26,6 +26,11 @@ jobs:
       - name: Generate Tag
         id: generate_tag
         run: |
+          echo "Generating tag..."
+      - name: Generate Release Notes
+        id: generate_release_notes
+        run: |
+
           # Get today's date
           TODAY=$(date +"%Y%m%d")
 
@@ -38,9 +43,7 @@ jobs:
           # Output the tag name to GITHUB_ENV for later steps
           echo "TAG_NAME=${TAG_NAME}" >> "$GITHUB_ENV"
 
-      - name: Generate Release Notes
-        id: generate_release_notes
-        run: |
+
           # Generate changelog from commits
           if [ "$LAST_TAG" = "${TODAY}-0" ]; then
             CHANGES=$(git log --format="* %s by %an" | sed 's/@/ @/')
