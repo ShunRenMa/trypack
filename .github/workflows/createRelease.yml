@@ -36,9 +36,10 @@ jobs:
 
           # Generate the changelog from commits
           if [ "$LAST_TAG" = "${TODAY}-0" ]; then
-              CHANGES=$(git log --merges --format="* %s" | grep -oP "Merge pull request #[0-9]+ from .*" | sed 's/@/ @/')
+              CHANGES=$(git log --format="%s@%an" | sed 's/@/ @/' | sort -u)
+
           else
-              CHANGES=$(git log --merges ${LAST_TAG}..HEAD --format="* %s" | grep -oP "Merge pull request #[0-9]+ from .*" | sed 's/@/ @/')
+              CHANGES=$(git log ${LAST_TAG}..HEAD --format="%s@%an" | sed 's/@/ @/' | sort -u)
           fi
 
           # Output the variables for use in later steps
