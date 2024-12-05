@@ -60,7 +60,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          RELEASE_NOTES="Version \n  "\`\`\`" mir js 1000-00-00  "\`\`\`""
+          RELEASE_NOTES="Version \n  "\`\`\`"\n * ad-serv.min.js 2024-12-02 3:30:42 PM  \n"\`\`\`""
           RELEASE_NOTES="$RELEASE_NOTES \n\n## What's Changed \n${{ env.CHANGES }}"
           RELEASE_NOTES=$(printf "%b" "$RELEASE_NOTES")
+
+          echo -e "$RELEASE_NOTES"
           gh release create $TAG_NAME -n "$RELEASE_NOTES"
