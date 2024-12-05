@@ -23,11 +23,6 @@ jobs:
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git config --global user.name "${{ github.actor }}"
 
-      - name: Debug GITHUB_ENV
-        run: |
-          echo "GITHUB_ENV path: $GITHUB_ENV"
-          ls -al $(dirname $GITHUB_ENV)
-
       - name: Generate Tag
         id: generate_tag
         run: |
@@ -42,11 +37,6 @@ jobs:
 
           # Output the tag name to GITHUB_ENV for later steps
           echo "TAG_NAME=${TAG_NAME}" >> "$GITHUB_ENV"
-
-      - name: Create New Tag
-        run: |
-          git tag -a $TAG_NAME -m "Release $TAG_NAME"
-          git push origin $TAG_NAME
 
       - name: Generate Release Notes
         id: generate_release_notes
@@ -63,6 +53,12 @@ jobs:
           echo "${CHANGES}" >> "$GITHUB_ENV"
           echo "EOF" >> "$GITHUB_ENV"
           echo "EOF = ${CHANGES}"
+
+      - name: Create New Tag
+        run: |
+          git tag -a $TAG_NAME -m "Release $TAG_NAME"
+          git push origin $TAG_NAME
+
       - name: Create Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
