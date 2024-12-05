@@ -15,7 +15,7 @@ var TryPack;
         function Main() {
         }
         Main.prototype.start = function () {
-            console.log("this is ");
+            console.log("this is   ");
             new TryPack.typePack();
         };
         return Main;
