@@ -54,33 +54,7 @@ jobs:
       - name: Create Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          # 從輸入中取得標籤名稱和說明
-          TAG_NAME="${{ github.event.inputs.tag_name }}"
-          RELEASE_NOTES="${{ github.event.inputs.release_notes }}"
-
-          # 確保標籤名稱不為空
-          if [ -z "$TAG_NAME" ]; then
-            echo "標籤名稱不能為空！"
-            exit 1
-          fi
-
-          # 建立標籤
-          git tag "$TAG_NAME"
-          git push origin "$TAG_NAME"
-
-          # 創建 Release
-          if [ -z "$RELEASE_NOTES" ]; then
-            gh release create "$TAG_NAME" \
-              --repo "$GITHUB_REPOSITORY" \
-              --title "${GITHUB_REPOSITORY#*/} $TAG_NAME" \
-              --generate-notes
-          else
-            gh release create "$TAG_NAME" \
-              --repo "$GITHUB_REPOSITORY" \
-              --title "${GITHUB_REPOSITORY#*/} $TAG_NAME" \
-              --notes "$RELEASE_NOTES"
-          fi
+        run:
 
       - name: Generate changelog
         run: |
