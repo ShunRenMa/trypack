@@ -53,7 +53,7 @@ jobs:
           fi
 
           # Output the variables for use in later steps
-
+          echo "tagname = $TAG_NAME"
           echo "CHANGES<<EOF" >> "$GITHUB_ENV"
           echo "${CHANGES}" >> "$GITHUB_ENV"
           echo "EOF" >> "$GITHUB_ENV"
