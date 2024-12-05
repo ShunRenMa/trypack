@@ -28,20 +28,20 @@ jobs:
           echo "GITHUB_ENV path: $GITHUB_ENV"
           ls -al $(dirname $GITHUB_ENV)
 
-          - name: Generate Tag
-          id: generate_tag
-          run: |
-            # Get today's date
-            TODAY=$(date +"%Y%m%d")
+      - name: Generate Tag
+        id: generate_tag
+        run: |
+          # Get today's date
+          TODAY=$(date +"%Y%m%d")
 
-            # Get the last tag
-            LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "${TODAY}-0")
+          # Get the last tag
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "${TODAY}-0")
 
-            # Generate the new tag name
-            TAG_NAME=$(echo $LAST_TAG | awk -F'-' -v today=$TODAY '{if ($1 == today) {printf "%s-%d", $1, $2 + 1} else {printf "%s-0", today}}')
+          # Generate the new tag name
+          TAG_NAME=$(echo $LAST_TAG | awk -F'-' -v today=$TODAY '{if ($1 == today) {printf "%s-%d", $1, $2 + 1} else {printf "%s-0", today}}')
 
-            # Output the tag name to GITHUB_ENV for later steps
-            echo "TAG_NAME=${TAG_NAME}" >> "$GITHUB_ENV"
+          # Output the tag name to GITHUB_ENV for later steps
+          echo "TAG_NAME=${TAG_NAME}" >> "$GITHUB_ENV"
 
       - name: Create New Tag
         run: |
