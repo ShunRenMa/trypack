@@ -48,8 +48,10 @@ jobs:
           fi
 
           # Output the variables for use in later steps
-          echo "TAG_NAME=${TAG_NAME}"
-          echo "CHANGES=${CHANGES}"
+          echo "TAG_NAME=${TAG_NAME}" >> "$GITHUB_ENV"
+          echo "CHANGES<<EOF" >> "$GITHUB_ENV"
+          echo "${CHANGES}" >> "$GITHUB_ENV"
+          echo "EOF" >> "$GITHUB_ENV"
 
       - name: Create New Tag
         run: |
@@ -60,7 +62,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Creating release $TAG_NAME"
+          gh release create $TAG_NAME -n "${{ env.CHANGES }}"
       - name: Generate changelog
         run: |
           # 使用新標籤生成 changelog
