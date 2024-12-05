@@ -23,11 +23,6 @@ jobs:
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git config --global user.name "${{ github.actor }}"
 
-      - name: Debug GITHUB_ENV
-        run: |
-          echo "GITHUB_ENV path: $GITHUB_ENV"
-          ls -al $(dirname $GITHUB_ENV)
-
       - name: Generate Tag and Release Notes
         id: generate
         run: |
@@ -48,6 +43,8 @@ jobs:
           fi
 
           # Output the variables for use in later steps
+          echo "LAST_TAG=${LAST_TAG}"
+          echo "TAG_NAME=${TAG_NAME}"
           echo "TAG_NAME=${TAG_NAME}" >> "$GITHUB_ENV"
           echo "CHANGES<<EOF" >> "$GITHUB_ENV"
           echo "${CHANGES}" >> "$GITHUB_ENV"
