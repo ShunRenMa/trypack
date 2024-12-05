@@ -56,11 +56,6 @@ jobs:
           git tag -a $TAG_NAME -m "Release $TAG_NAME"
           git push origin $TAG_NAME
 
-      - name: Create Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "Creating release $TAG_NAME"
       - name: Generate changelog
         run: |
           # 使用新標籤生成 changelog
