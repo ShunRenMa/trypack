@@ -60,6 +60,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release create $TAG_NAME -n "${{ env.CHANGES }}"
-      - name: Generate changelog
-        run: |
           done
