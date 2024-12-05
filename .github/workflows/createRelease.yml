@@ -11,7 +11,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: "main"
+          ref: ${{ github.ref }}
           fetch-depth: 0
 
       - name: 安裝 GitHub CLI
@@ -37,12 +37,21 @@ jobs:
           # Generate the changelog from commits
           if [ "$LAST_TAG" = "${TODAY}-0" ]; then
               CHANGES=$(git log --merges --format="%s%n%b" -n 1 | sed '1d' | sed 's/@/ @/')
+              CHANGED_FILES=$(git diff --name-only $(git rev-list --max-parents=0 HEAD) HEAD | grep "guoshipartners/static/js/.*\.js$" || true)
           else
               CHANGES=$(git log --merges ${LAST_TAG}..HEAD --format="%s%n%b" -n 1 | sed '1d' | sed 's/@/ @/')
+              CHANGED_FILES=$(git diff --name-only ${LAST_TAG} HEAD | grep "guoshipartners/static/js/.*\.js$" || true)
           fi
 
           CHANGES=$(echo "$CHANGES" | sed -e 's/^/- /' -e '$!s/$/\n/')
           echo "CHANGES=${CHANGES}"
+
+          echo "$CHANGED_FILES" | while IFS= read -r file; do
+                    if [ -f "$file" ]; then
+                      banner=$(head -n 2 "$file" | tail -n 1 | xargs)
+                      echo "$banner"
+                    fi
+                  done
 
           # Output the variables for use in later steps
           echo "LAST_TAG=${LAST_TAG}"
