@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main
-      - production
 jobs:
   generate-release-tag:
     runs-on: ubuntu-latest
@@ -30,12 +29,23 @@ jobs:
           # Get today's date
           TODAY=$(date +"%Y%m%d")
 
-          # Get tag
-          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "${TODAY}-0")
-          TAG_NAME=$(echo $LAST_TAG | awk -F'-' -v today=$TODAY '{if ($1 == today) {printf "%s-%d", $1, $2 + 1} else {printf "%s-0", today}}')
+          # Fetch all tags
+          git fetch --tags
+          TODAY_TAGS=$(git tag --list "${TODAY}-*" | sort -V)
+          LAST_TAG=$(echo "$TODAY_TAGS" | tail -n 1)
 
-          # Generate the changelog from commits
-          if [ "$LAST_TAG" = "${TODAY}-0" ]; then
+          # Determine the new tag
+          if [ -z "$LAST_TAG" ]; then
+              TAG_PRODUCTION="${TODAY}-0"
+              TAG_MAIN="${TODAY}-0.0"
+          else
+              LAST_INCREMENT=$(echo $LAST_TAG | awk -F'-' '{print $2}' | sed "s/.0//")
+              TAG_PRODUCTION="${TODAY}-$((LAST_INCREMENT + 1))"
+              TAG_MAIN="${TODAY}-$((LAST_INCREMENT + 1)).0"
+          fi
+
+          # Generate changelog
+          if [ -z "$LAST_TAG" ]; then
               CHANGES=$(git log --merges --format="%s%n%b" -n 1 | sed '1d' | sed 's/@/ @/')
           else
               CHANGES=$(git log --merges ${LAST_TAG}..HEAD --format="%s%n%b" -n 1 | sed '1d' | sed 's/@/ @/')
@@ -46,8 +56,8 @@ jobs:
 
           # Output the variables for use in later steps
           echo "LAST_TAG=${LAST_TAG}"
-          echo "TAG_NAME=${TAG_NAME}"
-          echo "TAG_NAME=${TAG_NAME}" >> "$GITHUB_ENV"
+          echo "TAG_PRODUCTION=${TAG_PRODUCTION}" >> "$GITHUB_ENV"
+          echo "TAG_MAIN=${TAG_MAIN}" >> "$GITHUB_ENV"
           echo "CHANGES<<EOF" >> "$GITHUB_ENV"
           echo "${CHANGES}" >> "$GITHUB_ENV"
           echo "EOF" >> "$GITHUB_ENV"
@@ -56,16 +66,26 @@ jobs:
           echo -e "${CHANGES}"
       - name: Create New Tag
         run: |
-          git tag -a $TAG_NAME -m "Release $TAG_NAME"
-          git push origin $TAG_NAME
+
+          git tag -a ${{ env.TAG_PRODUCTION }} -m "Release ${{ env.TAG_PRODUCTION }}"
+          git push origin ${{ env.TAG_PRODUCTION }}
+
+          # Tag for main branch
+          git tag -a ${{ env.TAG_MAIN }} -m "Release ${{ env.TAG_MAIN }}"
+          git push origin ${{ env.TAG_MAIN }}
 
       - name: Create Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          RELEASE_NOTES="## Version \n  "\`\`\`"\n * ad-serv.min.js 2024-12-02 3:30:42 PM  \n"\`\`\`""
+          RELEASE_NOTES="## Version\n\`\`\`\n * ad-serv.min.js $(date +"%Y-%m-%d %T")\n\`\`\`"
           RELEASE_NOTES="$RELEASE_NOTES \n\n## What's Changed \n${{ env.CHANGES }}"
           RELEASE_NOTES=$(printf "%b" "$RELEASE_NOTES")
 
           echo -e "$RELEASE_NOTES"
-          gh release create $TAG_NAME -n "$RELEASE_NOTES"
+
+          # Create production release
+          gh release create ${{ env.TAG_PRODUCTION }} -n "$RELEASE_NOTES"
+
+          # Create main release
+          gh release create ${{ env.TAG_MAIN }} -n "$RELEASE_NOTES"
