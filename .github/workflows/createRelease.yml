@@ -51,7 +51,6 @@ jobs:
           fi
 
           CHANGES=$(echo "$CHANGES" | sed -e 's/^/- /' -e '$!s/$/\n/')
-          echo "CHANGES=${CHANGES}"
 
           # Output the variables for use in later steps
           echo "LAST_TAG=${LAST_TAG}"
