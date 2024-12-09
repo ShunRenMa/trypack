@@ -29,12 +29,23 @@ jobs:
           # Get today's date
           TODAY=$(date +"%Y%m%d")
 
-          # Get tag
-          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "${TODAY}-0")
-          TAG_NAME="$(echo $LAST_TAG | awk -F'-' -v today=$TODAY '{if ($1 == today) {printf "%s-%d", $1, $2 + 1} else {printf "%s-0", today}}')$SUFFIX"
+          # Fetch all tags
+          git fetch --tags
+          TODAY_TAGS=$(git tag --list "${TODAY}-*" | sort -V)
+          LAST_TAG=$(echo "$TODAY_TAGS" | tail -n 1)
 
-          # Generate the changelog from commits
-          if [ "$LAST_TAG" = "${TODAY}-0" ]; then
+          # Determine the new tag
+          if [ -z "$LAST_TAG" ]; then
+              TAG_PRODUCTION="${TODAY}-0"
+              TAG_MAIN="${TODAY}-0.0"
+          else
+              LAST_INCREMENT=$(echo $LAST_TAG | awk -F'-' '{print $2}' | sed "s/.0//")
+              TAG_PRODUCTION="${TODAY}-$((LAST_INCREMENT + 1))"
+              TAG_MAIN="${TODAY}-$((LAST_INCREMENT + 1)).0"
+          fi
+
+          # Generate changelog
+          if [ -z "$LAST_TAG" ]; then
               CHANGES=$(git log --merges --format="%s%n%b" -n 1 | sed '1d' | sed 's/@/ @/')
           else
               CHANGES=$(git log --merges ${LAST_TAG}..HEAD --format="%s%n%b" -n 1 | sed '1d' | sed 's/@/ @/')
@@ -45,9 +56,8 @@ jobs:
 
           # Output the variables for use in later steps
           echo "LAST_TAG=${LAST_TAG}"
-          echo "TAG_NAME=${TAG_NAME}"
-          echo "TAG_NAME=${TAG_NAME}" >> "$GITHUB_ENV"
-          echo "TAG_MAIN=${TAG_NAME}" >> "$GITHUB_ENV"
+          echo "TAG_PRODUCTION=${TAG_PRODUCTION}" >> "$GITHUB_ENV"
+          echo "TAG_MAIN=${TAG_MAIN}" >> "$GITHUB_ENV"
           echo "CHANGES<<EOF" >> "$GITHUB_ENV"
           echo "${CHANGES}" >> "$GITHUB_ENV"
           echo "EOF" >> "$GITHUB_ENV"
