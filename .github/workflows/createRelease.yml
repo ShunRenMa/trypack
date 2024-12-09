@@ -51,7 +51,6 @@ jobs:
           fi
 
           CHANGES=$(echo "$CHANGES" | sed -e 's/^/- /' -e '$!s/$/\n/')
-          echo "CHANGES=${CHANGES}"
 
           # Output the variables for use in later steps
           echo "LAST_TAG=${LAST_TAG}"
@@ -63,13 +62,21 @@ jobs:
 
           echo "## What's Changed"
           echo -e "${CHANGES}"
-      - name: Create New Tag
+      - name: Create and Push Tag to Production
         run: |
+          # Ensure we're on the production branch
+          git checkout production
 
+          # Create and push production tag
           git tag -a ${{ env.TAG_PRODUCTION }} -m "Release ${{ env.TAG_PRODUCTION }}"
           git push origin ${{ env.TAG_PRODUCTION }}
 
-          # Tag for main branch
+      - name: Create and Push Tag to Main
+        run: |
+          # Ensure we're on the main branch
+          git checkout main
+
+          # Create and push main tag
           git tag -a ${{ env.TAG_MAIN }} -m "Release ${{ env.TAG_MAIN }}"
           git push origin ${{ env.TAG_MAIN }}
 
